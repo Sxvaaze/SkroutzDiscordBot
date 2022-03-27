@@ -21,7 +21,12 @@ class file():
     
     async def set_channel_id(self, new_id):
         prev_channel = int(self.read_from_file()[-1])
-        if int(new_id) == prev_channel or not new_id.isdigit():
+        if not new_id.isdigit():
+            emb = discord.Embed(title = "An error occured while trying to change channels", description = f"Δεν υπάρχει κανάλι με αναγνωριστικό {new_id}", color = 0xad0919)
+            await client.get_channel(prev_channel).send(embed = emb)
+            return None
+        
+        if int(new_id) == prev_channel:
             emb = discord.Embed(title = "An error occured while trying to change channels", description = f"Το κανάλι ειδοποιήσεων έχει ήδη id {new_id}", color = 0xad0919)
             await client.get_channel(prev_channel).send(embed = emb)
             return None
