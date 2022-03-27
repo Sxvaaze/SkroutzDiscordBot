@@ -1,0 +1,6 @@
+<Your Discord Bot Token>
+<Your DB Host Name e.g: localhost>
+<Your DB Username e.g: root>
+<Your DB Password (if no password is set, leave this line as: no_pwd)>
+<Your DB Name>
+<Your Initial Channel ID> (Can also be changed with the setid command)
