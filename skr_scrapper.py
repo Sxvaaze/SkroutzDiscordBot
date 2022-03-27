@@ -19,15 +19,39 @@ class file():
         file.close()
         return (self.LineData[0], self.LineData[1], self.LineData[2], self.LineData[3], self.LineData[4], self.LineData[5])
     
-    async def set_channel_id(self, new_id):
+    async def set_channel_id(self, new_id, guild_id):
         prev_channel = int(self.read_from_file()[-1])
+        current_guild = None
+        for guild in client.guilds:
+            if guild.id == guild_id:
+                current_guild = guild
+
+        guild_channel_names = []
+        guild_channels = []
+        for channel in current_guild.text_channels:
+            guild_channel_names.append(channel)
+            guild_channels.append(channel.id)
+
+        pos = i = 0
+        flag = True
+        while i < len(guild_channels) and flag:
+            if guild_channels[i] == guild_id:
+                pos = i
+                flag = False
+            i += 1
+            
         if not new_id.isdigit():
             emb = discord.Embed(title = "An error occured while trying to change channels", description = f"Δεν υπάρχει κανάλι με αναγνωριστικό {new_id}", color = 0xad0919)
             await client.get_channel(prev_channel).send(embed = emb)
             return None
         
+        if guild_id not in guild_channels:
+            emb = discord.Embed(title = "An error occured while trying to change channels", description = f"Το κανάλι ειδοποιήσεων με id {new_id} δεν υπάρχει σε αυτόν τον discord server", color = 0xad0919)
+            await client.get_channel(prev_channel).send(embed = emb)
+            return None
+        print(new_id, prev_channel)
         if int(new_id) == prev_channel:
-            emb = discord.Embed(title = "An error occured while trying to change channels", description = f"Το κανάλι ειδοποιήσεων έχει ήδη id {new_id}", color = 0xad0919)
+            emb = discord.Embed(title = "An error occured while trying to change channels", description = f"Το κανάλι ειδοποιήσεων έχει ήδη id {prev_channel} και όνομα {guild_channel_names[pos]}", color = 0xad0919)
             await client.get_channel(prev_channel).send(embed = emb)
             return None
 
@@ -45,7 +69,7 @@ class file():
             
         file.close()
 
-        setid = discord.Embed(title = "Update Channel ID Changed", description = f"Το κανάλι ειδοποιήσεων άλλαξε στο κανάλι με αναγνωριστικό {lines[-1]}", color = 0xf5426f)
+        setid = discord.Embed(title = "Update Channel ID Changed", description = f"Το κανάλι ειδοποιήσεων άλλαξε στο κανάλι με αναγνωριστικό {lines[-1]} και όνομα {guild_channel_names[pos]}", color = 0xf5426f)
         await client.get_channel(prev_channel).send(embed = setid)
 
 class dbConnection():
@@ -330,7 +354,8 @@ async def mode(ctx, arg):
 
 @client.command()
 async def setid(ctx, arg):
-    await fileObj.set_channel_id(arg)
+    gid = ctx.message.guild.id
+    await fileObj.set_channel_id(arg, gid)
     
 @client.event
 async def on_ready():
